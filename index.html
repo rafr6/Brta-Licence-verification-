@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,23 +7,26 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f5f9;
+      background: #e9ecef; /* হেডারের সাথে আলাদা ব্যাকগ্রাউন্ড */
       margin: 0;
       padding: 0;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
     .container {
       max-width: 800px;
-      margin: 30px auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      position: relative;
     }
-    /* পিডিএফ ডাউনলোড বাটনের জন্য */
     .download-btn {
-      display: inline-block;
-      margin: 15px 0;
+      display: none;
+      margin: 10px 5px;
       padding: 10px 20px;
       background: #ff5722;
       color: white;
@@ -31,117 +34,175 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 1em;
-    }
-    /* প্রিন্ট (পিডিএফ) করার সময় বাটন লুকাবে */
-    @media print {
-      .download-btn {
-        display: none !important;
-      }
+      position: fixed;
+      bottom: 85px; /* আরও উপরে আনা হলো */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
     }
     .top-header {
-      background: #007bff;
+      background: linear-gradient(90deg, #0099cc, #8BC34A);
       color: white;
-      padding: 10px;
-      border-radius: 6px;
-      margin: 20px auto 10px;
-      max-width: 800px;
-      font-size: 1.4em;
-    }
-    .section-header {
-      background: #28a745;
-      color: white;
-      padding: 8px;
+      padding: 15px;
       border-radius: 6px;
       margin-bottom: 15px;
-      font-size: 1.2em;
-    }
-    .card {
       display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: center;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
     }
-    .photo {
+    .header-text {
       flex: 1;
-      max-width: 200px;
-      margin-right: 20px;
+      text-align: center;
+      line-height: 1.4em;
     }
-    .photo img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .info {
-      flex: 2;
-      text-align: left;
-    }
-    .info p {
-      margin: 5px 0;
-    }
-    .label {
-      font-weight: normal;
-      color: #333;
-    }
-    .value {
+    .header-text .bangla {
+      font-size: 1.3em;
       font-weight: bold;
     }
+    .header-text .english {
+      font-size: 1em;
+    }
+    .top-header img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    /* Flip Wrapper */
+    .flip-wrapper {
+      perspective: 1000px;
+      max-width: 500px;
+      margin: auto;
+      background: #f0f4f8; /* ছবির ব্যাকগ্রাউন্ড আলাদা রঙ */
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .flip-card {
+      width: 100%;
+      height: 300px;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      position: relative;
+      cursor: pointer;
+    }
+    .flip-card.flipped {
+      transform: rotateY(180deg);
+    }
+    .flip-card .front,
+    .flip-card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .flip-card img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      object-fit: contain;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .flip-card .back {
+      transform: rotateY(180deg);
+    }
+
     .footer {
-      margin-top: 30px;
+      margin-top: 20px;
       font-size: 0.85em;
       color: #888;
     }
-    @media (max-width: 600px) {
-      .card {
-        flex-direction: column;
-        align-items: center;
+
+    /* Print-only section */
+    #print-area {
+      display: none;
+    }
+    #print-area img {
+      width: 100%;
+      max-width: 500px;
+      margin: 15px auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      display: block;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white !important;
       }
-      .photo {
-        margin: 0 0 20px 0;
+      .download-btn,
+      .footer,
+      .top-header,
+      .flip-wrapper {
+        display: none !important;
       }
-      .info {
+      #print-area {
+        display: block !important;
         text-align: center;
       }
     }
   </style>
 </head>
 <body>
-
-  <!-- উপরের হেডার -->
-  <div class="top-header">BRTA LICENCE VERIFICATION</div>
-
   <div class="container">
-    <!-- সেকশন হেডার -->
-    <div class="section-header">Card Holder Information</div>
-
-    <div class="card">
-      <div class="photo">
-        <img src="photo edit.jpg" alt="License Photo" />
+    <!-- Header -->
+    <div class="top-header">
+      <img src="logo-left.png" alt="Left Logo"/>
+      <div class="header-text">
+        <div class="bangla">গণপ্রজাতন্ত্রী বাংলাদেশ</div>
+        <div class="english">People's Republic of Bangladesh</div>
       </div>
-      <div class="info">
-        <p><span class="label">নাম / Name:</span> <span class="value">MD RAHIM MIA</span></p>
-        <p><span class="label">জন্ম তারিখ / Date of Birth:</span> <span class="value">02 APR 2002</span></p>
-        <p><span class="label">রক্তের গ্রুপ / Blood Group:</span> <span class="value">B(+)VE</span></p>
-        <p><span class="label">পিতা/স্বামী / Father/Husband:</span> <span class="value">ABDUL HASIM MIAH</span></p>
-        <p><span class="label">প্রদান/নবায়ন / Issue/Renewal:</span> <span class="value">26-MAY-2024</span></p>
-        <p><span class="label">মেয়াদ / Validity:</span> <span class="value">25-MAY-2029</span></p>
-        <p><span class="label">রেফারেন্স নং / Ref. No:</span> <span class="value">DM224029NP900</span></p>
-        <p><span class="label">প্রদানকারী কর্তৃপক্ষ / Issuing Authority:</span> <span class="value">DHAKA METRO-2, BRTA</span></p>
-        <p><span class="label">ঠিকানা / Address:</span> <span class="value">JATRAPUR, ASHUGANJ, BRAHMANBARIA</span></p>
-        <p><span class="label">Class(es):</span> <span class="value">LIGHT, MOTORCYCLE</span></p>
-        <p><span class="label">Status:</span> <span class="value" style="color: green;">ACTIVE</span></p>
+      <img src="logo-right.png" alt="Right Logo"/>
+    </div>
+
+    <!-- Flip Card -->
+    <div class="flip-wrapper">
+      <div class="flip-card" id="flipCard">
+        <div class="front">
+          <img src="front.jpg" alt="Licence Front"/>
+        </div>
+        <div class="back">
+          <img src="back.jpg" alt="Licence Back"/>
+        </div>
       </div>
     </div>
 
-    <div class="footer">© 2025 BRTA. All rights reserved.</div>
+    <!-- Hidden print section -->
+    <div id="print-area">
+      <img src="front.jpg" alt="Licence Front Print"/>
+      <img src="back.jpg" alt="Licence Back Print"/>
+    </div>
 
-    <!-- পিডিএফ ডাউনলোড বাটন -->
-    <button class="download-btn" onclick="downloadPDF()">Download PDF</button>
+    <div class="footer">© 2025 BRTA. All rights reserved.</div>
+    <button class="download-btn" id="downloadBtn" onclick="downloadPDF()">Download PDF</button>
   </div>
 
   <script>
+    const flipCard = document.getElementById("flipCard");
+    const downloadBtn = document.getElementById("downloadBtn");
+    let hideTimeout;
+
+    // Flip on touch/click
+    flipCard.addEventListener("click", () => {
+      flipCard.classList.toggle("flipped");
+    });
+
+    // Show download button on screen touch/click
+    document.addEventListener("click", () => {
+      downloadBtn.style.display = "block";
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        downloadBtn.style.display = "none";
+      }, 3000);
+    });
+
     function downloadPDF() {
       window.print();
-      document.querySelector('.download-btn').style.display = 'none';
     }
   </script>
 </body>
